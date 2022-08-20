@@ -1,4 +1,5 @@
 import os
+import re
 
 from flask import Flask, request, jsonify
 from werkzeug.exceptions import BadRequest
@@ -9,10 +10,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
 
-def do_cmd(cmd, value, data):
+def do_cmd(cmd: str, value: str, data: list[str]) -> list[str]:
     """
     Метод в зависимости от запроса возвращает
-    итератор или генератор
+    список итератора или генератора
     """
     if cmd == 'filter':
         result = list(filter(lambda record: value in record, data))
@@ -26,15 +27,18 @@ def do_cmd(cmd, value, data):
         result = sorted(data, reverse=reverse)
     elif cmd == 'limit':
         result = data[:int(value)]
+    elif cmd == 'regex':
+        regex = re.compile(value)
+        result = list(filter(lambda v: regex.search(v), data))
     else:
         raise BadRequest
     return result
 
 
-def do_query(params):
+def do_query(params: dict[str, str]) -> list[str]:
     """
     Метод открывает для чтения файл в зависимости от
-    запроса возвращает по ключам данные
+    запроса возвращает по ключам список данных
     """
     with open(os.path.join(DATA_DIR, params['file_name'])) as f:
         file_data = f.read().split('\n')
@@ -65,6 +69,10 @@ def perform_query():
 if __name__ == "__main__":
     app.run()
 
-
-# пример: в запросе отфильтровывает по записи 1.22.35.226 и из фильтрованных выбирает 6-ую колонку
-# и выводит 2 записи из всех выбранных
+"""
+test.http
+первый запрос: отфильтровывает по записи 1.22.35.226 и из фильтрованных
+выбирает 6-ую колонку и выводит первые 3 записи из всех выбранных
+второй запрос: по регулярному выражению выбирает все файлы с расширением .png
+и выводит первые 10 записей из всех выбранных
+"""

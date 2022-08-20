@@ -1,0 +1,26 @@
+POST http://127.0.0.1:5000/perform_query
+Accept: text/plain
+Content-Type: application/json
+
+{
+  "file_name": "apache_logs.txt",
+  "cmd1": "filter",
+  "value1": "1.22.35.226",
+  "cmd2": "map",
+  "value2": "6",
+  "cmd3": "limit",
+  "value3": "3"
+}
+
+###
+POST http://127.0.0.1:5000/perform_query
+Accept: text/plain
+Content-Type: application/json
+
+{
+  "file_name": "apache_logs.txt",
+  "cmd1": "regex",
+  "value1": "images/\\w+\\.png",
+  "cmd2": "limit",
+  "value2": "10"
+}
